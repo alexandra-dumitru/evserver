@@ -16,20 +16,24 @@
     <%= f.text_field :username %>
   </div>
   <div class="field">
-    <%= f.label :email %><br>
-    <%= f.text_field :email %>
-  </div>
-  <div class="field">
     <%= f.label :password %><br>
     <%= f.text_field :password %>
   </div>
   <div class="field">
-    <%= f.label :fbId %><br>
-    <%= f.text_field :fbId %>
+    <%= f.label :facebookid %><br>
+    <%= f.text_field :facebookid %>
   </div>
   <div class="field">
-    <%= f.label :googleId %><br>
-    <%= f.text_field :googleId %>
+    <%= f.label :googleid %><br>
+    <%= f.text_field :googleid %>
+  </div>
+  <div class="field">
+    <%= f.label :calendaritem %><br>
+    <%= f.number_field :calendaritem %>
+  </div>
+  <div class="field">
+    <%= f.label :favoriteitem %><br>
+    <%= f.number_field :favoriteitem %>
   </div>
   <div class="actions">
     <%= f.submit %>

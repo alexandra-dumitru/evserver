@@ -17,8 +17,8 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  username: alexandra
-  password: alexandra
+  username: postgres
+  password: alex
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: 5
@@ -26,8 +26,8 @@ default: &default
 development:
   <<: *default
   database: evserver_development
-  username: alexandra
-  password: alexandra
+  username: postgres
+  password: alex
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -85,5 +85,5 @@ test:
 production:
   <<: *default
   database: evserver_production
-  username: alexandra
-  password: alexandra
+  username: postgres
+  password: alex

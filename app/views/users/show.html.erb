@@ -1,13 +1,8 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>Name:</strong>
+  <strong>Username:</strong>
   <%= @user.username %>
-</p>
-
-<p>
-  <strong>Email:</strong>
-  <%= @user.email %>
 </p>
 
 <p>
@@ -16,13 +11,23 @@
 </p>
 
 <p>
-  <strong>Fbid:</strong>
-  <%= @user.fbId %>
+  <strong>Facebookid:</strong>
+  <%= @user.facebookid %>
 </p>
 
 <p>
   <strong>Googleid:</strong>
-  <%= @user.googleId %>
+  <%= @user.googleid %>
+</p>
+
+<p>
+  <strong>Calendaritem:</strong>
+  <%= @user.calendaritem %>
+</p>
+
+<p>
+  <strong>Favoriteitem:</strong>
+  <%= @user.favoriteitem %>
 </p>
 
 <%= link_to 'Edit', edit_user_path(@user) %> |

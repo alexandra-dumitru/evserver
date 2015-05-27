@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
+  skip_before_action :verify_authenticity_token
 
   # GET /users
   # GET /users.json
@@ -10,6 +11,9 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
+	respond_to do |format|
+	format.json { render json: "1" }
+	end
   end
 
   # GET /users/new
@@ -30,9 +34,11 @@ class UsersController < ApplicationController
       if @user.save
         format.html { redirect_to @user, notice: 'User was successfully created.' }
         format.json { render :show, status: :created, location: @user }
+		Rails.logger.debug @user.full_errors.to_s
       else
         format.html { render :new }
         format.json { render json: @user.errors, status: :unprocessable_entity }
+		Rails.logger.debug @user.full_errors.to_s
       end
     end
   end

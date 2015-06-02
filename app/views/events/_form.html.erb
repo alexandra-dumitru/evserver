@@ -21,19 +21,23 @@
   </div>
   <div class="field">
     <%= f.label :date %><br>
-    <%= f.date_select :date %>
+    <%= f.text_field :date %>
   </div>
   <div class="field">
     <%= f.label :timestart %><br>
-    <%= f.time_select :timestart %>
+    <%= f.text_field :timestart %>
   </div>
   <div class="field">
     <%= f.label :timeend %><br>
-    <%= f.time_select :timeend %>
+    <%= f.text_field :timeend %>
   </div>
   <div class="field">
     <%= f.label :location %><br>
     <%= f.text_field :location %>
+  </div>
+  <div class="field">
+    <%= f.label :category_name %><br>
+    <%= f.text_field :category_name %>
   </div>
   <div class="actions">
     <%= f.submit %>

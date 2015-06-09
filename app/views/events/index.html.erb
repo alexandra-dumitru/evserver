@@ -10,6 +10,7 @@
       <th>Timeend</th>
       <th>Location</th>
 	  <th>Category name</th>
+	  <th>Image source</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -24,6 +25,7 @@
         <td><%= event.timeend %></td>
         <td><%= event.location %></td>
 		<td><%= event.category_name %></td>
+		<td><%= event.imagesource %></td>
         <td><%= link_to 'Show', event %></td>
         <td><%= link_to 'Edit', edit_event_path(event) %></td>
         <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>

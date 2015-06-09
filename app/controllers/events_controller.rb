@@ -41,6 +41,7 @@ class EventsController < ApplicationController
 			descriptionEv = eventnode.at_css("div.event-list-item-descr").text
 			timeEv = eventnode.at_css("div.event-list-item-line_ex").text
 			locationEv = eventnode.at_css("span").at("//span[@itemprop = 'location']").text
+			imageSource = eventnode.at_css("img.thumb")['src']
 			
 			@event = Event.new(event_params)
 			@event.title = titleEv
@@ -48,6 +49,7 @@ class EventsController < ApplicationController
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Concerte"
+			@event.imagesource = imageSource
 			@event.save
 		end
 	end
@@ -92,6 +94,7 @@ class EventsController < ApplicationController
 		#	date = date1.slice(5,11) + " - " + date1.slice(25, 11)
 		#else date = date1.slice(5,11)
 		#end
+		imageSource = ev.at_css("img.thumb")['src']
 		@event = Event.new(event_params)
 		@event.title = title
 		@event.description = description
@@ -100,6 +103,7 @@ class EventsController < ApplicationController
 		@event.date = date.from(5)
 		@event.location = location
 		@event.category_name = "Festivaluri"
+		@event.imagesource = imageSource
 		@event.save
 	end
   end
@@ -122,7 +126,7 @@ class EventsController < ApplicationController
 				else description = "http://www.operanb.ro/#{link}"
 				end
 			time = e.at_css("div.calspecora").text
-		
+			imageSource = "http://www.operanb.ro/assets/img/logo-big.png"
 			@event = Event.new(event_params)
 			@event.title = title
 			@event.description = description
@@ -130,6 +134,7 @@ class EventsController < ApplicationController
 			@event.timestart = startTime
 			@event.location = "Opera Nationala Bucuresti, Bd. Mihail Kogalniceanu 70-72, sect. 5"
 			@event.category_name = "Opera"
+			@event.imagesource = imageSource
 			@event.save
 		end
 	end
@@ -153,12 +158,14 @@ end
 			descriptionEv = eventnode.at_css("div.event-list-item-descr").text
 			timeEv = eventnode.at_css("div.event-list-item-line_ex").text
 			locationEv = eventnode.at_css("span").at("//span[@itemprop = 'location']").text
+			imageSource = eventnode.at_css("img.thumb")['src']
 			
 			@event = Event.new(event_params)
 			@event.title = titleEv
 			@event.description = descriptionEv
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
+			@event.imagesource = imageSource
 			@event.category_name = "Teatru"
 			@event.save
 		end
@@ -182,6 +189,7 @@ end
 			descriptionEv = eventnode.at_css("div.event-list-item-descr").text
 			timeEv = eventnode.at_css("div.event-list-item-line_ex").text
 			locationEv = eventnode.at_css("span").at("//span[@itemprop = 'location']").text
+			imageSource = eventnode.at_css("img.thumb")['src']
 			
 			@event = Event.new(event_params)
 			@event.title = titleEv
@@ -189,6 +197,7 @@ end
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Expozitii"
+			@event.imagesource = imageSource
 			@event.save
 		end
 	end
@@ -211,6 +220,7 @@ end
 			descriptionEv = eventnode.at_css("div.event-list-item-descr").text
 			timeEv = eventnode.at_css("div.event-list-item-line_ex").text
 			locationEv = eventnode.at_css("span").at("//span[@itemprop = 'location']").text
+			imageSource = eventnode.at_css("img.thumb")['src']
 			
 			@event = Event.new(event_params)
 			@event.title = titleEv
@@ -218,6 +228,7 @@ end
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Party"
+			@event.imagesource = imageSource
 			@event.save
 		end
 	end
@@ -240,6 +251,7 @@ end
 			descriptionEv = eventnode.at_css("div.event-list-item-descr").text
 			timeEv = eventnode.at_css("div.event-list-item-line_ex").text
 			locationEv = eventnode.at_css("span").at("//span[@itemprop = 'location']").text
+			imageSource = eventnode.at_css("img.thumb")['src']
 			
 			@event = Event.new(event_params)
 			@event.title = titleEv
@@ -247,6 +259,7 @@ end
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Workhop"
+			@event.imagesource = imageSource
 			@event.save
 		end
 	end
@@ -279,6 +292,6 @@ end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      params.require(:event).permit(:title, :description, :date, :timestart, :timeend, :location, :category_name)
+      params.require(:event).permit(:title, :description, :date, :timestart, :timeend, :location, :category_name, :imagesource)
     end
 end

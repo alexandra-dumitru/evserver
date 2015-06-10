@@ -1,4 +1,5 @@
 class EventsController < ApplicationController
+require 'open-uri'
   before_action :set_event, only: [:show, :edit, :update, :destroy]
   # GET /events
   # GET /events.json

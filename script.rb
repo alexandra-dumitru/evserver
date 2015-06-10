@@ -26,7 +26,7 @@ events = doc.css("div.event_content").map do |eventnode|
 end
 
 puts events[:title]
-=end
+
 
 doc = Nokogiri::HTML(open("http://metropotam.ro/evenimente/Concerte/"))
 
@@ -45,7 +45,7 @@ nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 end
 
 page = Nokogiri::HTML(open("http://www.operanb.ro/calendar"))
-=begin
+
 events = page.css("div.calitem").map do |e|
 	if(e.at_css("a"))
 		title = e.at_css("a").text
@@ -72,7 +72,7 @@ json = 'http://www.operanb.ro/calendar'.to_json
 result = JSON.parse(json, :quirks_mode => true)
 
 puts result
-=end
+
 
 
 
@@ -98,10 +98,14 @@ puts startDate.to_s
 puts endDate.to_s
 puts startTime.to_s
 puts endTime.to_s
+=end
 
 
 
+page = Nokogiri::HTML(open("http://metropotam.ro/locuri-locatii-adrese/Arenele-Romane-loc5890124948/"))
 
+title = page.at("h1").text
+puts title
 
 
 

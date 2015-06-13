@@ -42,3 +42,4 @@ gem 'coffee-script-source', '1.8.0'
 gem 'nokogiri'
 require 'open-uri'
 gem 'activesupport-core-ext'
+gem 'rails_12factor', group: :production

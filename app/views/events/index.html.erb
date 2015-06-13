@@ -13,6 +13,7 @@
 	  <th>Image source</th>
 	  <th>Latitude</th>
 	  <th>Longitude</th>
+	  <th>Event url</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -30,6 +31,7 @@
 		<td><%= event.imagesource %></td>
 		<td><%= event.latitude %></td>
 		<td><%= event.longitude %></td>
+		<td><%= event.event_url %></td>
         <td><%= link_to 'Show', event %></td>
         <td><%= link_to 'Edit', edit_event_path(event) %></td>
         <td><%= link_to 'Destroy', event, method: :delete, data: { confirm: 'Are you sure?' } %></td>

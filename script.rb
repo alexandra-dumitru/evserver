@@ -102,12 +102,10 @@ puts endTime.to_s
 
 
 
-page = Nokogiri::HTML(open("http://metropotam.ro/locuri-locatii-adrese/Arenele-Romane-loc5890124948/"))
-
-title = page.at("h1").text
-puts title
-
-
+page = Nokogiri::HTML(open("http://metropotam.ro/evenimente/Europe-event7885019223/"))
+description = page.css("div.text_normal").text
+#puts description.split('|')[-1].lstrip!
+puts description.split('|')[-1]
 
 
 

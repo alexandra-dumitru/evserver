@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
-require 'open-uri'
   before_action :set_event, only: [:show, :edit, :update, :destroy]
+  skip_before_action :verify_authenticity_token
   # GET /events
   # GET /events.json
   def index
@@ -28,7 +28,7 @@ require 'open-uri'
   # =======================Concerte=========================
     pageNr = 1
 	@category = Category.find_by name: 'Concerte'
-	doc = Nokogiri::HTML(open(@category.url)) 
+	doc = Nokogiri::HTML(open(@category.url).read) 
 	nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 		pageNr = pageNr + 1
 	end
@@ -36,7 +36,7 @@ require 'open-uri'
 	1.upto(pageNr) do |id|
 		url = "http://metropotam.ro/evenimente/Concerte/?start=#{id}"
 		
-		doc = Nokogiri::HTML(open(url))
+		doc = Nokogiri::HTML(open(url).read)
 		events = doc.css("div.event-list-item").map do |eventnode|
 			titleEv = eventnode.at_css("h2").text
 			#descriptionEv = eventnode.at_css("div.event-list-item-descr").text
@@ -45,12 +45,15 @@ require 'open-uri'
 			#imageSource = eventnode.at_css("img.thumb")['src']
 			
 			linkForEvent = eventnode.at_css("h2").at('a')['href']
-			pageEvent = Nokogiri::HTML(open(linkForEvent))
+			pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 			imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+			if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 			descriptionEv = pageEvent.css("div.text_normal").text
 			
 			linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -62,13 +65,14 @@ require 'open-uri'
 
 			@event = Event.new(event_params)
 			@event.title = titleEv
-			@event.description = descriptionEv
+			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Concerte"
 			@event.imagesource = imageSource
 			@event.latitude = latitude
 			@event.longitude = longitude
+			@event.event_url = linkForEvent
 			@event.save
 		end
 	end
@@ -99,7 +103,7 @@ require 'open-uri'
 
   def create_festivals
 	@category = Category.find_by name: 'Festivaluri'
-	doc = Nokogiri::HTML(open(@category.url))
+	doc = Nokogiri::HTML(open(@category.url).read)
 	
 	events = doc.css("div.event-list-item").map do |ev|
 		
@@ -111,12 +115,15 @@ require 'open-uri'
 		endTime = date.slice(37,5)
 		#imageSource = ev.at_css("img.thumb")['src']
 		linkForEvent = ev.at_css("h2").at('a')['href']
-		pageEvent = Nokogiri::HTML(open(linkForEvent))
+		pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 		imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+		if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 		description = pageEvent.css("div.text_normal").text
 		
 		linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -127,7 +134,7 @@ require 'open-uri'
 		location = pageMap.at("h1").text
 		@event = Event.new(event_params)
 		@event.title = title
-		@event.description = description
+		@event.description = description.split('|')[-1].lstrip!
 		@event.timestart = startTime
 		@event.timeend = endTime
 		@event.date = date.from(5)
@@ -136,6 +143,7 @@ require 'open-uri'
 		@event.imagesource = imageSource
 		@event.latitude = latitude
 		@event.longitude = longitude
+		@event.event_url = linkForEvent
 		@event.save
 	end
   end
@@ -146,7 +154,7 @@ require 'open-uri'
 			url = "http://www.operanb.ro/calendar/2015-0#{i}"
 			else url = "http://www.operanb.ro/calendar/2015-#{i}"
 		end
-		page = Nokogiri::HTML(open(url))
+		page = Nokogiri::HTML(open(url).read)
 		events = page.css("div.calitem").map do |e|
 			if(e.at_css("a"))
 				title = e.at_css("a").text
@@ -155,7 +163,7 @@ require 'open-uri'
 				startTime = e.at_css("div.calspecora").text
 				if(link.include? "http://")
 					description = link
-				else description = "http://www.operanb.ro/#{link}"
+				else description = "Mai multe detalii pe: http://www.operanb.ro/#{link}"
 				end
 			time = e.at_css("div.calspecora").text
 			imageSource = "http://www.operanb.ro/assets/img/logo-big.png"
@@ -167,6 +175,9 @@ require 'open-uri'
 			@event.location = "Opera Nationala Bucuresti, Bd. Mihail Kogalniceanu 70-72, sect. 5"
 			@event.category_name = "Opera"
 			@event.imagesource = imageSource
+			@event.event_url = description.from(22)
+			@event.latitude = "44.4359"
+		    @event.longitude = "26.079514"
 			@event.save
 		end
 	end
@@ -176,7 +187,7 @@ end
   def create_teatru
 	pageNr = 1
 	@category = Category.find_by name: 'Teatru'
-	doc = Nokogiri::HTML(open(@category.url))
+	doc = Nokogiri::HTML(open(@category.url).read)
 	nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 		pageNr = pageNr + 1
 	end
@@ -184,7 +195,7 @@ end
 	1.upto(pageNr) do |id|
 		url = "http://metropotam.ro/evenimente/Piese-de-teatru/?start=#{id}"
 		
-		doc = Nokogiri::HTML(open(url))
+		doc = Nokogiri::HTML(open(url).read)
 		events = doc.css("div.event-list-item").map do |eventnode|
 			titleEv = eventnode.at_css("h2").text
 			#descriptionEv = eventnode.at_css("div.event-list-item-descr").text
@@ -193,12 +204,15 @@ end
 			#imageSource = eventnode.at_css("img.thumb")['src']
 			
 			linkForEvent = eventnode.at_css("h2").at('a')['href']
-			pageEvent = Nokogiri::HTML(open(linkForEvent))
+			pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 			imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+			if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 			descriptionEv = pageEvent.css("div.text_normal").text
 			
 			linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -209,13 +223,14 @@ end
 			locationEv = pageMap.at("h1").text
 			@event = Event.new(event_params)
 			@event.title = titleEv
-			@event.description = descriptionEv
+			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.imagesource = imageSource
 			@event.category_name = "Teatru"
 			@event.latitude = latitude
 			@event.longitude = longitude
+			@event.event_url = linkForEvent
 			@event.save
 		end
 	end
@@ -224,7 +239,7 @@ end
   def create_expo
 	pageNr = 1
 	@category = Category.find_by name: 'Expozitii'
-	doc = Nokogiri::HTML(open(@category.url))
+	doc = Nokogiri::HTML(open(@category.url).read)
 	nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 		pageNr = pageNr + 1
 	end
@@ -232,7 +247,7 @@ end
 	1.upto(pageNr) do |id|
 		url = "http://metropotam.ro/evenimente/Expozitii/?start=#{id}"
 		
-		doc = Nokogiri::HTML(open(url))
+		doc = Nokogiri::HTML(open(url).read)
 		events = doc.css("div.event-list-item").map do |eventnode|
 			titleEv = eventnode.at_css("h2").text
 			#descriptionEv = eventnode.at_css("div.event-list-item-descr").text
@@ -241,12 +256,15 @@ end
 			#imageSource = eventnode.at_css("img.thumb")['src']
 			
 			linkForEvent = eventnode.at_css("h2").at('a')['href']
-			pageEvent = Nokogiri::HTML(open(linkForEvent))
+			pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 			imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+			if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 			descriptionEv = pageEvent.css("div.text_normal").text
 			
 			linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -257,13 +275,14 @@ end
 			locationEv = pageMap.at("h1").text
 			@event = Event.new(event_params)
 			@event.title = titleEv
-			@event.description = descriptionEv
+			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Expozitii"
 			@event.imagesource = imageSource
 			@event.latitude = latitude
 			@event.longitude = longitude
+			@event.event_url = linkForEvent
 			@event.save
 		end
 	end
@@ -272,7 +291,7 @@ end
   def create_party
 	pageNr = 1
 	@category = Category.find_by name: 'Party'
-	doc = Nokogiri::HTML(open(@category.url))
+	doc = Nokogiri::HTML(open(@category.url).read)
 	nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 		pageNr = pageNr + 1
 	end
@@ -280,7 +299,7 @@ end
 	1.upto(pageNr) do |id|
 		url = "http://metropotam.ro/evenimente/Petreceri/?start=#{id}"
 		
-		doc = Nokogiri::HTML(open(url))
+		doc = Nokogiri::HTML(open(url).read)
 		events = doc.css("div.event-list-item").map do |eventnode|
 			titleEv = eventnode.at_css("h2").text
 			#descriptionEv = eventnode.at_css("div.event-list-item-descr").text
@@ -289,12 +308,15 @@ end
 			#imageSource = eventnode.at_css("img.thumb")['src']
 			
 			linkForEvent = eventnode.at_css("h2").at('a')['href']
-			pageEvent = Nokogiri::HTML(open(linkForEvent))
+			pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 			imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+			if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 			descriptionEv = pageEvent.css("div.text_normal").text
 			
 			linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -305,13 +327,14 @@ end
 			locationEv = pageMap.at("h1").text
 			@event = Event.new(event_params)
 			@event.title = titleEv
-			@event.description = descriptionEv
+			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Party"
 			@event.imagesource = imageSource
 			@event.latitude = latitude
 			@event.longitude = longitude
+			@event.event_url = linkForEvent
 			@event.save
 		end
 	end
@@ -320,7 +343,7 @@ end
   def create_workshop
 	pageNr = 1
 	@category = Category.find_by name: 'Workshop'
-	doc = Nokogiri::HTML(open(@category.url))
+	doc = Nokogiri::HTML(open(@category.url).read)
 	nrs = doc.css("div.pages_full li.page_nocurrent").map do |nr|
 		pageNr = pageNr + 1
 	end
@@ -328,7 +351,7 @@ end
 	1.upto(pageNr) do |id|
 		url = "http://metropotam.ro/evenimente/Petreceri/?start=#{id}"
 		
-		doc = Nokogiri::HTML(open(url))
+		doc = Nokogiri::HTML(open(url).read)
 		events = doc.css("div.event-list-item").map do |eventnode|
 			titleEv = eventnode.at_css("h2").text
 			#descriptionEv = eventnode.at_css("div.event-list-item-descr").text
@@ -337,12 +360,15 @@ end
 			#imageSource = eventnode.at_css("img.thumb")['src']
 			
 			linkForEvent = eventnode.at_css("h2").at('a')['href']
-			pageEvent = Nokogiri::HTML(open(linkForEvent))
+			pageEvent = Nokogiri::HTML(open(linkForEvent).read)
 			imageSource = pageEvent.css("div#movie_poster").at("//img[@itemprop = 'image']")['src']
+			if imageSource.include? "view.1.jpg"
+				imageSource.sub! "view.1.jpg", "view.jpg"
+			end
 			descriptionEv = pageEvent.css("div.text_normal").text
 			
 			linkForMap = pageEvent.at_css("div.movie_line").at('a')['href']
-			pageMap = Nokogiri::HTML(open(linkForMap))
+			pageMap = Nokogiri::HTML(open(linkForMap).read)
 			if (pageMap.css("div#map").at("//meta[@itemprop = 'latitude']").nil?)
 				latitude = "44.42677"
 				longitude = "26.10254"
@@ -353,13 +379,14 @@ end
 			locationEv = pageMap.at("h1").text
 			@event = Event.new(event_params)
 			@event.title = titleEv
-			@event.description = descriptionEv
+			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
 			@event.category_name = "Workhop"
 			@event.imagesource = imageSource
 			@event.latitude = latitude
 			@event.longitude = longitude
+			@event.event_url = linkForEvent
 			@event.save
 		end
 	end
@@ -392,6 +419,6 @@ end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def event_params
-      params.require(:event).permit(:title, :description, :date, :timestart, :timeend, :location, :category_name, :imagesource, :latitude, :longitude)
+      params.require(:event).permit(:title, :description, :date, :timestart, :timeend, :location, :category_name, :imagesource, :latitude, :longitude, :event_url)
     end
 end

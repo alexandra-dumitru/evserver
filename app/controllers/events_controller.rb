@@ -157,13 +157,19 @@ class EventsController < ApplicationController
 		page = Nokogiri::HTML(open(url).read)
 		events = page.css("div.calitem").map do |e|
 			if(e.at_css("a"))
-				title = e.at_css("a").text
+				title = e.at_css("a").text.gsub(/[ăîșțâĂÎȘȚÂ]/, 'ă' => 'a', 'î' => 'i', 'ș' => 's', 'ț' => 't', 'â' => 'a', 'Ă' => 'A', 'Î' => 'I', 'Ș' => 'S', 'Ț' => 'T', 'Â' => 'A', 'ä' => 'a', 'Ä' => 'A')
 				link = e.at_css("a")["href"]
-				date = e.at_css("div.calzi").text
+				#dateS = e.at_css("div.calzi").text
+				dateS = url.split('/')[-1] + "-" + e.at_css("div.calzi").text
+				str = dateS.split(" ")[0]
+				if (str.split("-")[2].length == 1) 
+					date = str.split("-")[0] + "-" + str.split("-")[1] + "-0" + str.split("-")[2]
+				else date = str.split("-")[0] + "-" + str.split("-")[1] + "-" + str.split("-")[2]
+				end
 				startTime = e.at_css("div.calspecora").text
 				if(link.include? "http://")
 					description = link
-				else description = "Mai multe detalii pe: http://www.operanb.ro/#{link}"
+				else description = "Detalii despre eveniment: http://www.operanb.ro/#{link}"
 				end
 			time = e.at_css("div.calspecora").text
 			imageSource = "http://www.operanb.ro/assets/img/logo-big.png"
@@ -175,7 +181,7 @@ class EventsController < ApplicationController
 			@event.location = "Opera Nationala Bucuresti, Bd. Mihail Kogalniceanu 70-72, sect. 5"
 			@event.category_name = "Opera"
 			@event.imagesource = imageSource
-			@event.event_url = description.from(22)
+			@event.event_url = description.from(26)
 			@event.latitude = "44.4359"
 		    @event.longitude = "26.079514"
 			@event.save
@@ -382,7 +388,7 @@ end
 			@event.description = descriptionEv.split('|')[-1].lstrip!
 			@event.location = locationEv
 			@event.date = timeEv.from(5)
-			@event.category_name = "Workhop"
+			@event.category_name = "Workshop"
 			@event.imagesource = imageSource
 			@event.latitude = latitude
 			@event.longitude = longitude

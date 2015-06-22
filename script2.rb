@@ -1,25 +1,3 @@
-require 'nokogiri'
-require 'open-uri'
-
-pageNr = 0
-doc = Nokogiri::HTML(open("http://www.vinsieu.ro/evenimente/muzica-si-concerte/bucuresti/data/toate/clsdp.html"))
-nrs = doc.css("div.pager a.number").map do |nr|
-	pageNr = pageNr + 1
-end
-pageNr = pageNr/2 + 1
-1.upto(pageNr) do |id|
-		url = "http://www.vinsieu.ro/evenimente/muzica-si-concerte/bucuresti/data/toate/#{id}/clsdp.html"
-		
-		begin
-		doc = Nokogiri::HTML(open(url))
-		rescue Exception => e
-			puts "Couldn't read \"#{ url }\": #{ e }"
-			exit
-		end
-		puts pageNr
-end
-
-event = doc.css("div.event_content").at_css("time").at("//time[@itemprop = 'endDate']").text
-titleEv = doc.css("div.event_content").at_css("p.title").text
-puts "Start date: " + event
-puts titleEv
+str = " / 14:00-15:00-16:40-19:20-20:45-22:00 / 14:25-17:15 / 14:30-17:00-19:30-22:00 / 14:15-16:00-17:00-18:45-19:45-21:30-22:30-23:45 / 14:00-15:00-16:30-17:30-19:00-20:00-21:30-22:30 / 14:30-16:10-17:00-18:40-19:30-21:10-22:00 / 14:30-17:00-19:30-22:00 / 14:00-15:00-16:30-17:30-19:00-20:00-21:30-22:30 / 14:30-15:20-17:00-17:50-19:30-20:20-22:00-22:50 / 15:00-17:30-20:00-22:40 / 16:45-21:45 / 16:05-20:05 / 15:30"
+str1 = str.split(" / ")
+puts str1

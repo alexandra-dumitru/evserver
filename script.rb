@@ -1,6 +1,5 @@
 require 'nokogiri'
 require 'open-uri'
-require 'mechanize'
 
 =begin
 doc = Nokogiri::HTML(open("http://www.vinsieu.ro/evenimente/muzica-si-concerte/bucuresti/data/toate/clsd.html"))
@@ -98,16 +97,140 @@ puts startDate.to_s
 puts endDate.to_s
 puts startTime.to_s
 puts endTime.to_s
+
+
+doc = Nokogiri::HTML(open("http://www.cinemagia.ro/program-cinema/bucuresti/premiere/"))
+
+movieLinks = doc.css("div.box_list_programe_cinema").map do |m|
+	moviePageURL = m.at_css("a")['href']
+	moviePage = Nokogiri::HTML(open(moviePage))
+	title = moviePage.css("h1").text
+	description = moviePage.css("div#body_sinopsis").text
+	date = 
+	timeStart
+	timeEnd
+	location
+	categoryName
+	imageSource
+	latitude
+	longitude
+	eventURLh
+	
+	moviePageURL = movieDayPage.css("h2 a").map do |m|
+		moviePage = Nokogiri::HTML(open(m['href']))
+		
+	end
+end
 =end
 
 
+doc = Nokogiri::HTML(open("http://www.cinemagia.ro/program-cinema/bucuresti/"))
 
-page = Nokogiri::HTML(open("http://metropotam.ro/evenimente/Europe-event7885019223/"))
-description = page.css("div.text_normal").text
-#puts description.split('|')[-1].lstrip!
-puts description.split('|')[-1]
+counter = 1
+schedule = doc.css("div.nav_tabs a").map do |s|
+	if counter == 8
+	else
+		counter = counter + 1
+		#@movie = Movie.new
+		movieDayPage = Nokogiri::HTML(open(s['href']))
+		dateS = s['title'].split(" ")[-2] + " " + s['title'].split(" ")[-1] + " 2015"
+		date = dateS.slice(0,6)
+		
+		#Movie details start
+		movieItem = movieDayPage.css("div.program_cinema_show").map do |m|
+		#TITLE
+			title = m.at_css("div.image").at("a")['title'].split("-")[1].lstrip!
+		#DESCRIPTION
+			movieLink = m.at_css("div.image").at("a")['href']
+			moviePage = Nokogiri::HTML(open(movieLink))
+			description = moviePage.css("div#body_sinopsis").text
+			
+			program = movieDayPage.css("div.program a")
+			for i in 0..program.length-1
+				puts program[i]['href']
+			end
+			
+		
+=begin					
+			programMap = m.at_css("div.program").map do |p|
+				if p.at("a.theatre-link").nil?
+				else
+					locationText1 = locationText1 + "," + p.at("a.theatre-link")['title']
+					puts locationText1
+				end
+				if p.at("a.buy_ticket_hour").nil?
+				else
+					locationHours = locationHours + "," + p.at("a.buy_ticket_hour").text
+					puts locationHours
+				end
+			end
+=end				
+				
+				
+				#@movie.location = locationText
+				locationURL = m.at_css("div.program").at("a.theatre-link")['href']
+				locationPage = Nokogiri::HTML(open(locationURL))
+				if locationPage.css("div.box_content div.right").nil?
+					
+				else  
+					if locationPage.css("div.box_content div.right").at("img.img2").nil?
+					#puts "it is nil"
+					else 
+						locationCoordsLink =  locationPage.css("div.box_content div.right").at("img.img2")['src']
+						locationCoords = locationCoordsLink[/\|(.*?)\&/]
+						locationCoords.slice!(0)
+						locationCoords.slice!(-1)
+						latitude = locationCoords.split(",")[0]
+						longitude = locationCoords.split(",")[1]
+						#@movie.latitude = latitude
+						#@movie.longitude = longitude
+						#puts locationText + " " + latitude + " " + longitude
+					end
+				end	
+			end		
+		end		
+		#Movie details end
+	end
+
+=begin
+	if counter == 8
+	else
+		counter = counter + 1
+		dateS = s['title'].split(" ")[-2] + " " + s['title'].split(" ")[-1]
+		date = dateS.slice(0,6)
+		#Begin search movie by movie
+	    moviePageURL = movieDayPage.css("h2 a").map do |m|
+		moviePage = Nokogiri::HTML(open(m['href']))
+		puts m['href']
+		title = moviePage.css('h1').text
+		description = moviePage.css("div#body_sinopsis").text
+		timeStart = moviePage.css("div.program span").text
+		#puts moviePage.css("div.program").at_css("a.theatre-link")['title']
+		
+		
+	end
+	
+
+		#Location start
+
+		location = moviePage.css("div.program").at_css("a.theatre-link")['title']
+		locationURL = moviePage.css("div.program").at_css("a.theatre-link")['href']
+		cinemaPage = Nokogiri::HTML(open(locationURL))
+		locationCoordsLink = cinemaPage.css("div.box_content").text
+		locationCoords = locationCoordsLink[/\|(.*?)\&/]
+		locationCoords.slice!(0)
+		locationCoords.slice!(-1)
+		latitude = locationCoords.split(",")[0]
+		longitude = locationCoords.split(",")[1]
+		
+		#puts latitude
+		#puts longitude
 
 
+		#Location end
+		
+	end
+=end
 
 
 
